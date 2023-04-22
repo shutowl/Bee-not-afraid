@@ -34,6 +34,11 @@ public class SanityDrop : MonoBehaviour
         }
     }
 
+    public void SetAmount(int amount)
+    {
+        this.amount = amount;
+    }
+
     private void OnTriggerEnter2D(Collider2D col)
     {
         if (col.CompareTag("Player"))

@@ -24,7 +24,7 @@ public class Enemy : MonoBehaviour
         
     }
 
-    void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage)
     {
         hp -= damage;
 

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.Tilemaps;
 
 public class Spawner : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class Spawner : MonoBehaviour
     private float spawnTimer = 0f;
     public float spawnRadius = 5f;
     [SerializeField] float sanityOffset = 0f;   //Increases based on how low sanity is;
+    public Tilemap[] tilemaps;
 
     private GameObject player;
     private PlayerControls playerScript;
@@ -36,6 +38,12 @@ public class Spawner : MonoBehaviour
         }
 
         sanityOffset = 100 - playerScript.GetSanity();
+
+        //Color of BG based on sanity
+        for(int i = 0; i < tilemaps.Length; i++)
+        {
+            tilemaps[i].color = new Color(1, 1 - Mathf.Clamp(sanityOffset, 0, 50)/100, 1 - Mathf.Clamp(sanityOffset, 0, 50)/100);
+        }
     }
 
     void SpawnEnemy()
@@ -45,7 +53,7 @@ public class Spawner : MonoBehaviour
         {
             spawnPosition = new Vector2(Random.Range(boundaries[0].x, boundaries[1].x), Random.Range(boundaries[0].y, boundaries[1].y));
         }
-        Instantiate(enemies[0], spawnPosition, Quaternion.identity);
+        Instantiate(enemies[Random.Range(0, enemies.Length)], spawnPosition, Quaternion.identity);
     }
 
     public void SetBoundaries()

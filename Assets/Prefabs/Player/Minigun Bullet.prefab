@@ -150,4 +150,4 @@ MonoBehaviour:
   lifeTime: 1
   speed: 40
   damage: 3
-  bulletSpread: 3
+  bulletSpread: 2

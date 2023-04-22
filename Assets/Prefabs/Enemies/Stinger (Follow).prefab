@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -2442586322705603359}
   - component: {fileID: 4570685071904877808}
   m_Layer: 0
-  m_Name: Stinger
+  m_Name: Stinger (Follow)
   m_TagString: EnemyBullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -5,6 +5,7 @@ using UnityEngine;
 public class Bee : Enemy
 {
     public float speed = 3f;
+    public int amount = 5;
     public float changeInterval = 2f;
     public float cameraTargetDistance = 2f;
     public Camera mainCamera;
@@ -89,5 +90,17 @@ public class Bee : Enemy
             }
         }
 
+    }
+
+    public override void TakeDamage(int damage)
+    {
+        hp -= damage;
+
+        if (hp <= 0)
+        {
+            GameObject sanityDrop = Instantiate(sanity, transform.position, Quaternion.identity);
+            sanityDrop.GetComponent<SanityDrop>().SetAmount(amount);
+            Destroy(this.gameObject);
+        }
     }
 }
