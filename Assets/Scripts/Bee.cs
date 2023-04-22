@@ -92,15 +92,13 @@ public class Bee : Enemy
 
     }
 
-    public override void TakeDamage(int damage)
+    public override void Die()
     {
-        hp -= damage;
+        GameObject sanityDrop = Instantiate(sanity, transform.position, Quaternion.identity);
+        sanityDrop.GetComponent<SanityDrop>().SetAmount(amount);
 
-        if (hp <= 0)
-        {
-            GameObject sanityDrop = Instantiate(sanity, transform.position, Quaternion.identity);
-            sanityDrop.GetComponent<SanityDrop>().SetAmount(amount);
-            Destroy(this.gameObject);
-        }
+        float RNG = Random.Range(0f, 1f);
+        if (RNG < 0.05f) Instantiate(pickups[Random.Range(0, pickups.Length)], transform.position, Quaternion.identity);
+        Destroy(this.gameObject);
     }
 }

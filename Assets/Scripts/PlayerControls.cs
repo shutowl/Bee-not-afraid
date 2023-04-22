@@ -11,6 +11,7 @@ public class PlayerControls : MonoBehaviour
     {
         nailgun,
         minigun,
+        shotgun,
         pesticide,
         pan
     }
@@ -27,7 +28,11 @@ public class PlayerControls : MonoBehaviour
     private bool firing = false;
     public float nailGunFireRate = 0.5f;
     public float miniGunFireRate = 0.02f;
+    public float shotgunFireRate = 0.5f;
+    public float pesticideFireRate = 1f;
     private float fireRateTimer = 0f;
+    public Image weaponImage;
+    public TextMeshProUGUI weaponText;
 
     [Header("Sanity")]
     public float maxSanity = 100;
@@ -38,6 +43,7 @@ public class PlayerControls : MonoBehaviour
     public float drainRateIncreaseAmount = 0.001f;
     public Slider sanityBar;
     public TextMeshProUGUI sanityText;
+    public Animator eye;
 
     [Header("Last Wind")]
     [SerializeField] bool lastWind = false;
@@ -106,6 +112,7 @@ public class PlayerControls : MonoBehaviour
                 if (fireRateTimer < 0)
                 {
                     Instantiate(bullets[0], weaponObject.transform.position, Quaternion.identity);
+                    DropBulletCasing(bullets[0]);
                     fireRateTimer = nailGunFireRate;
                 }
 
@@ -115,9 +122,31 @@ public class PlayerControls : MonoBehaviour
                 if (fireRateTimer < 0)
                 {
                     Instantiate(bullets[1], weaponObject.transform.position, Quaternion.identity);
-                    rb.AddForce(rotationPoint.transform.rotation * Vector3.right * -50);
-                    rb.velocity = Vector2.ClampMagnitude(rb.velocity, 7);
+                    DropBulletCasing(bullets[1]);
+                    rb.AddForce(rotationPoint.transform.rotation * Vector3.right * -25f);
+                    rb.velocity = Vector2.ClampMagnitude(rb.velocity, 3);
                     fireRateTimer = miniGunFireRate;
+                }
+            }
+            if (weapon == Weapon.shotgun)
+            {
+                if (fireRateTimer < 0)
+                {
+                    for(int i = 0; i < 15; i++)
+                    {
+                        Instantiate(bullets[2], weaponObject.transform.position, Quaternion.identity);
+                        DropBulletCasing(bullets[2]);
+                    }
+                    rb.AddForce(rotationPoint.transform.rotation * Vector3.right * -300f);
+                    fireRateTimer = shotgunFireRate;
+                }
+            }
+            if (weapon == Weapon.pesticide)
+            {
+                if (fireRateTimer < 0)
+                {
+                    Instantiate(bullets[3], weaponObject.transform.position, Quaternion.identity);
+                    fireRateTimer = pesticideFireRate;
                 }
             }
         }
@@ -152,7 +181,19 @@ public class PlayerControls : MonoBehaviour
         curSanity = Mathf.Clamp(curSanity - sanityDrainRate, 0, maxSanity);
         sanityText.text = curSanity.ToString("F2") + "%";
         sanityBar.value = curSanity;
+        eye.SetFloat("sanity", curSanity);
 
+        if (curSanity <= 0)
+        {
+            if (!lastWind)
+            {
+                EnableOverdrive();
+            }
+            else if(!overdrive)
+            {
+                GameOver();
+            }
+        }
     }
 
     void FixedUpdate()
@@ -179,6 +220,19 @@ public class PlayerControls : MonoBehaviour
         rotationPoint.transform.rotation = Quaternion.Euler(0, 0, rotZ);    //Rotate position towards mouse using angle
     }
 
+    void DropBulletCasing(GameObject bullet)
+    {
+        GameObject casing = Instantiate(bullet, weaponObject.transform.position, Quaternion.identity);
+        casing.GetComponent<PlayerBullet>().casing = true;
+        casing.GetComponent<PlayerBullet>().lifeTime = 0.75f;
+        casing.GetComponent<BoxCollider2D>().enabled = false;
+        casing.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+        casing.GetComponent<Rigidbody2D>().gravityScale = 2;
+        casing.GetComponent<Transform>().localScale /= 2;
+        int xDir = (weaponSprite.flipY) ? 1 : -1;
+        casing.GetComponent<Rigidbody2D>().AddForce(new Vector2(Random.Range(60f, 100f) * xDir, Random.Range(150f, 250f)));
+    }
+
     public void RestoreSanity(float amount)
     {
         if (!overdrive)
@@ -192,13 +246,7 @@ public class PlayerControls : MonoBehaviour
 
             if(sanityNeeded == 0)
             {
-                overdrive = false;
-                nailGunFireRate *= 3;
-                miniGunFireRate *= 3;
-
-                lastWindTimeText.text = "";
-                lastWindEnemyText.text = "";
-                RestoreSanity(70);
+                DisableOverdrive();
             }
         }
     }
@@ -208,18 +256,6 @@ public class PlayerControls : MonoBehaviour
         if (!overdrive)
         {
             curSanity -= amount;
-
-            if (curSanity <= 0)
-            {
-                if (!lastWind)
-                {
-                    EnableOverdrive();
-                }
-                else
-                {
-                    GameOver();
-                }
-            }
         }
     }
 
@@ -234,6 +270,32 @@ public class PlayerControls : MonoBehaviour
 
         nailGunFireRate /= 3;
         miniGunFireRate /= 3;
+        shotgunFireRate /= 3;
+        pesticideFireRate /= 3;
+    }
+
+    void DisableOverdrive()
+    {
+        overdrive = false;
+        nailGunFireRate *= 3;
+        miniGunFireRate *= 3;
+        shotgunFireRate *= 3;
+        pesticideFireRate *= 3;
+
+        lastWindTimeText.text = "";
+        lastWindEnemyText.text = "";
+        RestoreSanity(70);
+    }
+
+    public void SetWeaponSprite(Sprite sprite)
+    {
+        weaponSprite.sprite = sprite;
+        weaponImage.sprite = sprite;
+    }
+
+    public void SetWeaponText(string text)
+    {
+        weaponText.text = text;
     }
 
     public float GetSanity()

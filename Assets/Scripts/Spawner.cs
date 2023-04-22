@@ -49,9 +49,11 @@ public class Spawner : MonoBehaviour
     void SpawnEnemy()
     {
         Vector2 spawnPosition = new Vector2(Random.Range(boundaries[0].x, boundaries[1].x), Random.Range(boundaries[0].y, boundaries[1].y));
-        while (Vector2.Distance(spawnPosition, player.transform.position) < spawnRadius)
+        Collider2D overlap = Physics2D.OverlapCircle(spawnPosition, 1f);
+        while (Vector2.Distance(spawnPosition, player.transform.position) < spawnRadius || overlap != null)
         {
             spawnPosition = new Vector2(Random.Range(boundaries[0].x, boundaries[1].x), Random.Range(boundaries[0].y, boundaries[1].y));
+            overlap = Physics2D.OverlapCircle(spawnPosition, 1f);
         }
         Instantiate(enemies[Random.Range(0, enemies.Length)], spawnPosition, Quaternion.identity);
     }

@@ -8,48 +8,72 @@ public class PlayerBullet : MonoBehaviour
     {
         nail,
         minigun,
+        shotgun,
         acid,
     }
     public BulletType type;
     public float lifeTime = 1f;
+    private float lifeTimeTimer = 0f;
     public float speed = 5f;
     public int damage = 10;
     public float bulletSpread = 4f;
+    public bool casing = false;
     private Rigidbody2D rb;
+    private SpriteRenderer sprite;
+    public GameObject acidCloud;
+
+    public float x = 0, y = -1;
 
     void Start()
     {
-        if(type == BulletType.nail)
-        {
-            rb = GetComponent<Rigidbody2D>();
-            Camera mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-            Vector3 mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition);         //Get mouse position (using world coordinates)
-            Vector3 rotation = mousePos - transform.position;                   //Get direction vector from player to mouse
-            float rotZ = Mathf.Atan2(rotation.y, rotation.x) * Mathf.Rad2Deg;   //Get angle of direction vector (in degrees)
-            transform.rotation = Quaternion.Euler(0, 0, rotZ);                  //Rotate position towards mouse using angle
+        rb = GetComponent<Rigidbody2D>();
+        Camera mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        Vector3 mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition);         //Get mouse position (using world coordinates)
+        Vector3 rotation = mousePos - transform.position;                   //Get direction vector from player to mouse
+        float rotZ = Mathf.Atan2(rotation.y, rotation.x) * Mathf.Rad2Deg;   //Get angle of direction vector (in degrees)
+        transform.rotation = Quaternion.Euler(0, 0, rotZ - 90);                  //Rotate position towards mouse using angle
 
-            rb.velocity = new Vector2(rotation.x, rotation.y).normalized * speed;
-        }
-        if(type == BulletType.minigun)
+        if (!casing)
         {
-            rb = GetComponent<Rigidbody2D>();
-            Camera mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-            Vector3 mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition) + new Vector3(Random.Range(-bulletSpread, bulletSpread), Random.Range(-bulletSpread, bulletSpread));         
-            Vector3 rotation = mousePos - transform.position;                   //Get direction vector from player to mouse
-            float rotZ = Mathf.Atan2(rotation.y, rotation.x) * Mathf.Rad2Deg;   //Get angle of direction vector (in degrees)
-            transform.rotation = Quaternion.Euler(0, 0, rotZ);                  //Rotate position towards mouse using angle
-
-            rb.velocity = new Vector2(rotation.x, rotation.y).normalized * speed;
+            if (type == BulletType.nail || type == BulletType.acid)
+            {
+                rb.velocity = new Vector2(rotation.x, rotation.y).normalized * speed;
+            }
+            if (type == BulletType.minigun || type == BulletType.shotgun)
+            {
+                rb.velocity = new Vector2(rotation.x, rotation.y).normalized * speed + new Vector2(Random.Range(-bulletSpread, bulletSpread), Random.Range(-bulletSpread, bulletSpread));
+            }
         }
+        else
+        {
+            sprite = GetComponent<SpriteRenderer>();
+        }
+
+        lifeTimeTimer = lifeTime;
     }
 
     private void Update()
     {
-        lifeTime -= Time.deltaTime;
-        if(lifeTime < 0)
+        lifeTimeTimer -= Time.deltaTime;
+        if (lifeTimeTimer < 0)
         {
+            if (type == BulletType.acid)
+            {
+                Instantiate(acidCloud, transform.position, Quaternion.identity);
+            }
             Destroy(this.gameObject);
+        }
+        if (casing)
+        {
+            sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, lifeTimeTimer / lifeTime);
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.CompareTag("Bee") && type == BulletType.acid)
+        {
+            Instantiate(acidCloud, transform.position, Quaternion.identity);
+        }
+    }
 }
