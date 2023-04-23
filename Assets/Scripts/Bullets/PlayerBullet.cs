@@ -76,7 +76,7 @@ public class PlayerBullet : MonoBehaviour
     {
         if (col.CompareTag("Bee") && type == BulletType.acid)
         {
-            FindObjectOfType<PlayerControls>().PlaySound(clip, 0.3f);
+            FindObjectOfType<PlayerControls>().PlaySound(clip, 0.2f);
             Instantiate(acidCloud, transform.position, Quaternion.identity);
         }
     }

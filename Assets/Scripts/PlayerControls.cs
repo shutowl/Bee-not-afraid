@@ -38,6 +38,7 @@ public class PlayerControls : MonoBehaviour
     public float maxSanity = 100;
     [SerializeField] private float curSanity;
     public float sanityDrainRate = 0.05f;
+    public float minSanityDrainRate = 0.03f;
     public float drainRateIncreaseRate = 20f;   //every [] seconds, drain rate increases a certain amount
     private float drainRateIncreaseTimer = 0f;
     public float drainRateIncreaseAmount = 0.001f;
@@ -168,7 +169,7 @@ public class PlayerControls : MonoBehaviour
             {
                 if (fireRateTimer < 0)
                 {
-                    PlaySound(sounds[3], 0.3f);
+                    PlaySound(sounds[3], 0.15f);
                     Instantiate(bullets[3], weaponObject.transform.position, Quaternion.identity);
                     fireRateTimer = pesticideFireRate;
                 }
@@ -186,7 +187,7 @@ public class PlayerControls : MonoBehaviour
         }
         else
         {
-            sanityDrainRate = Mathf.Clamp(sanityDrainRate + drainRateIncreaseAmount, 0.005f, 0.02f);
+            sanityDrainRate = Mathf.Clamp(sanityDrainRate + drainRateIncreaseAmount, 0.005f, minSanityDrainRate);
             drainRateIncreaseTimer = drainRateIncreaseRate;
         }
         if (overdrive)
