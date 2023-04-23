@@ -149,7 +149,7 @@ MonoBehaviour:
   type: 2
   lifeTime: 1
   speed: 30
-  damage: 3
+  damage: 4
   bulletSpread: 8
   casing: 0
   acidCloud: {fileID: 2996439728874974773, guid: 999461fb63b7a474991df80a11f08f97, type: 3}

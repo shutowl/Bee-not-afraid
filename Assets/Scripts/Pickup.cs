@@ -15,6 +15,7 @@ public class Pickup : MonoBehaviour
     public Weapon weapon;
     public string text;
     public float lifeTime = 10f;
+    public AudioClip clip;
 
     void Update()
     {
@@ -30,6 +31,8 @@ public class Pickup : MonoBehaviour
             col.GetComponent<PlayerControls>().weapon = (PlayerControls.Weapon)this.weapon;
             col.GetComponent<PlayerControls>().SetWeaponSprite(GetComponent<SpriteRenderer>().sprite);
             col.GetComponent<PlayerControls>().SetWeaponText(text);
+            col.GetComponent<PlayerControls>().RestoreSanity(20);
+            col.GetComponent<PlayerControls>().PlaySound(clip, 0.2f);
             Destroy(this.gameObject);
         }
     }

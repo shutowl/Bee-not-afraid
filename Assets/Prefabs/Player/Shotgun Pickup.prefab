@@ -127,3 +127,4 @@ MonoBehaviour:
   weapon: 2
   text: Shotgun
   lifeTime: 10
+  clip: {fileID: 8300000, guid: 9f6c1145041ab7842aa6d2fab88e2fc6, type: 3}

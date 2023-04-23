@@ -11,6 +11,8 @@ public class Spawner : MonoBehaviour
     public float spawnRate = 2f;
     private float spawnTimer = 0f;
     public float spawnRadius = 5f;
+    public float BARRYSPAWN = 120f;
+    bool barrySpawned = false;
     [SerializeField] float sanityOffset = 0f;   //Increases based on how low sanity is;
     public Tilemap[] tilemaps;
 
@@ -30,7 +32,7 @@ public class Spawner : MonoBehaviour
         spawnTimer += Time.deltaTime;
         if (spawnTimer >= spawnRate - (sanityOffset/40))
         {
-            for(int i = 0; i < Random.Range(1 + (int)(sanityOffset/40), 3 + (int)(sanityOffset / 40)); i++)
+            for(int i = 0; i < Random.Range(1 + (int)(sanityOffset/30), 3 + (int)(sanityOffset / 30)); i++)
             {
                 SpawnEnemy();
             }
@@ -38,6 +40,20 @@ public class Spawner : MonoBehaviour
         }
 
         sanityOffset = 100 - playerScript.GetSanity();
+
+        //UNLEASH THE BARRY
+        if(!barrySpawned && playerScript.GetTimeElapsed() > BARRYSPAWN)
+        {
+            Vector2 spawnPosition = new(Random.Range(boundaries[0].x, boundaries[1].x), Random.Range(boundaries[0].y, boundaries[1].y));
+            Collider2D overlap = Physics2D.OverlapCircle(spawnPosition, 1f);
+            while (Vector2.Distance(spawnPosition, player.transform.position) < spawnRadius || overlap != null)
+            {
+                spawnPosition = new Vector2(Random.Range(boundaries[0].x, boundaries[1].x), Random.Range(boundaries[0].y, boundaries[1].y));
+                overlap = Physics2D.OverlapCircle(spawnPosition, 1f);
+            }
+            Instantiate(enemies[3], spawnPosition, Quaternion.identity);
+            barrySpawned = true;
+        }
 
         //Color of BG based on sanity
         for(int i = 0; i < tilemaps.Length; i++)
@@ -48,14 +64,14 @@ public class Spawner : MonoBehaviour
 
     void SpawnEnemy()
     {
-        Vector2 spawnPosition = new Vector2(Random.Range(boundaries[0].x, boundaries[1].x), Random.Range(boundaries[0].y, boundaries[1].y));
+        Vector2 spawnPosition = new(Random.Range(boundaries[0].x, boundaries[1].x), Random.Range(boundaries[0].y, boundaries[1].y));
         Collider2D overlap = Physics2D.OverlapCircle(spawnPosition, 1f);
         while (Vector2.Distance(spawnPosition, player.transform.position) < spawnRadius || overlap != null)
         {
             spawnPosition = new Vector2(Random.Range(boundaries[0].x, boundaries[1].x), Random.Range(boundaries[0].y, boundaries[1].y));
             overlap = Physics2D.OverlapCircle(spawnPosition, 1f);
         }
-        Instantiate(enemies[Random.Range(0, enemies.Length)], spawnPosition, Quaternion.identity);
+        Instantiate(enemies[Random.Range(0, 3)], spawnPosition, Quaternion.identity);
     }
 
     public void SetBoundaries()
@@ -65,7 +81,7 @@ public class Spawner : MonoBehaviour
         boundaries[1] = new Vector2(rect.anchoredPosition.x + rect.sizeDelta.x/2, rect.anchoredPosition.y - rect.sizeDelta.y/2);
     }
 }
-
+/*
 [CustomEditor(typeof(Spawner))]
 public class SpawnerEditor : Editor
 {
@@ -80,3 +96,4 @@ public class SpawnerEditor : Editor
         }
     }
 }
+*/

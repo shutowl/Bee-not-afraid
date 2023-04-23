@@ -153,5 +153,6 @@ MonoBehaviour:
   bulletSpread: 4
   casing: 0
   acidCloud: {fileID: 2996439728874974773, guid: 999461fb63b7a474991df80a11f08f97, type: 3}
+  clip: {fileID: 8300000, guid: 29d61c13bec344943b5470710059e7da, type: 3}
   x: 0
   y: -1

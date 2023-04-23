@@ -13,10 +13,12 @@ public class Enemy : MonoBehaviour
     public int hp;
     public GameObject sanity;
     public GameObject[] pickups;
+    bool alreadyDead;
 
     SpriteRenderer sprite;
     GameObject player;
 
+    public AudioClip deathSound;
 
     public void Start()
     {
@@ -35,9 +37,10 @@ public class Enemy : MonoBehaviour
     {
         hp -= damage;
 
-        if(hp <= 0)
+        if(hp <= 0 && !alreadyDead)
         {
             Die();
+            alreadyDead = true;
         }
     }
 
@@ -52,7 +55,7 @@ public class Enemy : MonoBehaviour
         */
     }
 
-    private void OnTriggerEnter2D(Collider2D col)
+    public virtual void OnTriggerEnter2D(Collider2D col)
     {
         if (col.CompareTag("PlayerBullet"))
         {

@@ -111,6 +111,7 @@ public class Bumblebee : Enemy
 
         float RNG = Random.Range(0f, 1f);
         if (RNG < 0.1f) Instantiate(pickups[Random.Range(0, pickups.Length)], transform.position, Quaternion.identity);
+        FindObjectOfType<PlayerControls>().PlaySound(deathSound, 0.4f);
         Destroy(this.gameObject);
     }
 }

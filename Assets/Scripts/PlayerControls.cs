@@ -60,9 +60,15 @@ public class PlayerControls : MonoBehaviour
     public TextMeshProUGUI TimeText;
     bool gameOver = false;
 
+    SpriteRenderer playerSprite;
     private Rigidbody2D rb;
+    Animator anim;
     Camera mainCam;
     Vector3 mousePos;
+    AudioSource source;
+
+    [Header("Audio")]
+    public AudioClip[] sounds;
 
     void Start()
     {
@@ -71,6 +77,9 @@ public class PlayerControls : MonoBehaviour
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
 
         weaponSprite = weaponObject.GetComponent<SpriteRenderer>();
+        playerSprite = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
+        source = GetComponent<AudioSource>();
 
         curSanity = maxSanity;
         sanityBar.maxValue = maxSanity;
@@ -80,13 +89,25 @@ public class PlayerControls : MonoBehaviour
         lastWindTimeText.text = "";
         lastWindEnemyText.text = "";
         GameOverUI.SetActive(false);
+        Time.timeScale = 1;
     }
 
     void Update()
     {
         direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        if (mousePos.x > transform.position.x) weaponSprite.flipY = false;
-        else weaponSprite.flipY = true;
+        if (mousePos.x > transform.position.x)
+        {
+            playerSprite.flipX = false;
+            weaponSprite.flipY = false;
+        }
+        else
+        {
+            playerSprite.flipX = true;
+            weaponSprite.flipY = true;
+        }
+
+        if (direction.x != 0 || direction.y != 0) anim.SetBool("isMoving", true);
+        else anim.SetBool("isMoving", false);
 
         //Controls
         if (Input.GetKeyDown(KeyCode.Mouse0))   //Fire button held down
@@ -100,7 +121,6 @@ public class PlayerControls : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Space) && gameOver)
         {
-            Time.timeScale = 1;
             SceneManager.LoadScene(0);
         }
 
@@ -113,6 +133,7 @@ public class PlayerControls : MonoBehaviour
                 {
                     Instantiate(bullets[0], weaponObject.transform.position, Quaternion.identity);
                     DropBulletCasing(bullets[0]);
+                    PlaySound(sounds[0], 0.3f);
                     fireRateTimer = nailGunFireRate;
                 }
 
@@ -123,6 +144,7 @@ public class PlayerControls : MonoBehaviour
                 {
                     Instantiate(bullets[1], weaponObject.transform.position, Quaternion.identity);
                     DropBulletCasing(bullets[1]);
+                    PlaySound(sounds[2], 0.2f);
                     rb.AddForce(rotationPoint.transform.rotation * Vector3.right * -25f);
                     rb.velocity = Vector2.ClampMagnitude(rb.velocity, 3);
                     fireRateTimer = miniGunFireRate;
@@ -137,6 +159,7 @@ public class PlayerControls : MonoBehaviour
                         Instantiate(bullets[2], weaponObject.transform.position, Quaternion.identity);
                         DropBulletCasing(bullets[2]);
                     }
+                    PlaySound(sounds[1], 0.5f);
                     rb.AddForce(rotationPoint.transform.rotation * Vector3.right * -300f);
                     fireRateTimer = shotgunFireRate;
                 }
@@ -145,6 +168,7 @@ public class PlayerControls : MonoBehaviour
             {
                 if (fireRateTimer < 0)
                 {
+                    PlaySound(sounds[3], 0.3f);
                     Instantiate(bullets[3], weaponObject.transform.position, Quaternion.identity);
                     fireRateTimer = pesticideFireRate;
                 }
@@ -162,7 +186,7 @@ public class PlayerControls : MonoBehaviour
         }
         else
         {
-            sanityDrainRate += drainRateIncreaseAmount;
+            sanityDrainRate = Mathf.Clamp(sanityDrainRate + drainRateIncreaseAmount, 0.005f, 0.02f);
             drainRateIncreaseTimer = drainRateIncreaseRate;
         }
         if (overdrive)
@@ -233,11 +257,17 @@ public class PlayerControls : MonoBehaviour
         casing.GetComponent<Rigidbody2D>().AddForce(new Vector2(Random.Range(60f, 100f) * xDir, Random.Range(150f, 250f)));
     }
 
+    public float GetTimeElapsed()
+    {
+        return timeElapsed;
+    }
+
     public void RestoreSanity(float amount)
     {
         if (!overdrive)
         {
             curSanity = Mathf.Clamp(curSanity + amount, 0, 100);
+            PlaySound(sounds[4], 0.3f);
         }
         else
         {
@@ -255,12 +285,14 @@ public class PlayerControls : MonoBehaviour
     {
         if (!overdrive)
         {
+            PlaySound(sounds[5], 0.3f);
             curSanity -= amount;
         }
     }
 
     void EnableOverdrive()
     {
+        PlaySound(sounds[6], 0.3f);
         lastWind = true;
         overdrive = true;
         sanityNeeded = 10;
@@ -276,6 +308,7 @@ public class PlayerControls : MonoBehaviour
 
     void DisableOverdrive()
     {
+        PlaySound(sounds[7], 0.3f);
         overdrive = false;
         nailGunFireRate *= 3;
         miniGunFireRate *= 3;
@@ -301,5 +334,11 @@ public class PlayerControls : MonoBehaviour
     public float GetSanity()
     {
         return curSanity;
+    }
+
+    public void PlaySound(AudioClip clip, float volume)
+    {
+        source.volume = volume;
+        source.PlayOneShot(clip);
     }
 }

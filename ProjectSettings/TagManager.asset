@@ -17,7 +17,7 @@ TagManager:
   - UI
   - Bee
   - Walls
-  - 
+  - Hurtbox
   - 
   - 
   - 
@@ -42,6 +42,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BackBackground
+    uniqueID: 3188638407
+    locked: 0
   - name: Background
     uniqueID: 4173155735
     locked: 0

@@ -22,6 +22,8 @@ public class PlayerBullet : MonoBehaviour
     private SpriteRenderer sprite;
     public GameObject acidCloud;
 
+    public AudioClip clip;
+
     public float x = 0, y = -1;
 
     void Start()
@@ -59,6 +61,7 @@ public class PlayerBullet : MonoBehaviour
         {
             if (type == BulletType.acid)
             {
+                FindObjectOfType<PlayerControls>().PlaySound(clip, 0.3f);
                 Instantiate(acidCloud, transform.position, Quaternion.identity);
             }
             Destroy(this.gameObject);
@@ -73,6 +76,7 @@ public class PlayerBullet : MonoBehaviour
     {
         if (col.CompareTag("Bee") && type == BulletType.acid)
         {
+            FindObjectOfType<PlayerControls>().PlaySound(clip, 0.3f);
             Instantiate(acidCloud, transform.position, Quaternion.identity);
         }
     }
